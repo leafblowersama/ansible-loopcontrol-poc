@@ -1,0 +1,6 @@
+---
+base_root_ssh_keys: [ ]
+base_root_yubikeys: [ ]
+extra_root_ssh_keys: []
+extra_root_yubikeys: [ ]
+extra_users: [ ]

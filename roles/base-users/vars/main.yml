@@ -1,0 +1,10 @@
+---
+default_username: False
+default_group: "{{ username }}"
+default_password: False
+default_nologin: False
+default_shell: /bin/zsh
+default_authorized_keys: []
+default_authorized_yubikeys: []
+
+base_user_actual_shell: "{% if nologin %}/bin/false{% else %}{{ shell }}{% endif %}"

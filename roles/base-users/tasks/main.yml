@@ -1,0 +1,13 @@
+---
+- include: singleuser.yml
+  vars:
+    username: "{{ base_users_include_item.username | default(default_username)}}"
+    group: "{{ base_users_include_item.group | default(default_group) }}"
+    password: "{{ base_users_include_item.password | default(default_password) }}"
+    nologin: "{{ base_users_include_item.nologin | default(default_nologin) }}"
+    shell: "{{ base_users_include_item.shell | default(default_shell) }}"
+    authorized_keys: "{{ base_users_include_item.authorized_keys | default(default_authorized_keys) }}"
+    authorized_yubikeys: "{{ base_users_include_item.authorized_yubikeys | default(default_authorized_yubikeys) }}"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: base_users_include_item

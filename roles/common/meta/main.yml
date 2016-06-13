@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: base-users, users: [ "{{ base_users }}", "{{ extra_users }}" ] }

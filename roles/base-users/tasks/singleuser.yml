@@ -1,0 +1,63 @@
+---
+- name: check the username is supplied
+  fail: msg="you must specify a username"
+  when: "username is not defined or not username"
+
+  #- name: "[user {{ username }}] setup account"
+  #  user: >
+  #    name={{ username }} group={{ group }}
+  #    shell={{ base_user_actual_shell }}
+  #
+  #- name: "[user {{ username }}] setup password"
+  #  user: >
+  #    name={{ username }} group={{ group }}
+  #    password={{ password }}
+  #  when: password != False
+
+- name: "[user {{ username }}] read homedir from /etc/passwd"
+  always_run: true
+  shell: grep -E "^{{ username }}:" /etc/passwd | cut -d':' -f6
+  register: homedir
+  changed_when: False
+
+- debug: var=homedir
+
+- name: "[user {{ username }}] store homedir"
+  set_fact: base_user_homedir={{ homedir.stdout }}
+
+- name: "[user {{ username }}] make sure .ssh dir exists"
+  file: >
+    path={{ base_user_homedir }}/.ssh owner={{ username }}
+    group={{ group }} mode=0755 state=directory
+
+- name: "[user {{ username }}] manage authorized_keys"
+  authorized_key: user={{ username }} key="{{ lookup('file', 'ssh_keys/{{ item }}.pub') }}"
+  with_items: "{{ authorized_keys }}"
+
+- name: "[user {{ username }}] copy SSH private RSA key"
+  copy: >
+    src={{ item }} dest={{ base_user_homedir }}/.ssh/id_rsa
+    owner={{ username }} group={{ group }} mode=0600
+  with_first_found:
+    - files: "{{ username }}@{{ inventory_hostname }}"
+      paths: "{{ ssh_keys_search_paths }}"
+      skip: True
+
+- name: "[user {{ username }}] copy SSH public RSA key"
+  copy: >
+    src={{ item }} dest={{ base_user_homedir }}/.ssh/id_rsa.pub
+    owner={{ username }} group={{ group }} mode=0644
+  with_first_found:
+    - files: "{{ username }}@{{ inventory_hostname }}.pub"
+      paths: "{{ ssh_keys_search_paths }}"
+      skip: True
+
+- name: "[user {{ username }}] make sure .yubico dir exists"
+  file: >
+    path={{ base_user_homedir }}/.yubico owner={{ username }}
+    group={{ group }} mode=0755 state=directory
+
+- name: "[user {{ username }}] manage authorized_yubikeys"
+  template: >
+    src=authorized_yubikeys.j2 dest={{ base_user_homedir }}/.yubico/authorized_yubikeys
+    owner={{ username }} group={{ group }} mode=0644

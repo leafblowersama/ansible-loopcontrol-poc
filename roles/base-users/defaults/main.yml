@@ -1,0 +1,5 @@
+---
+#Where we look for SSH keys relative to the root of the repo
+ssh_keys_search_paths:
+  - "ssh_keys"
+  - "files/ssh_keys"

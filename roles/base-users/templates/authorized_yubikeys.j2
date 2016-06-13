@@ -1,0 +1,1 @@
+{{ username }}:{% for item in authorized_yubikeys %}{% if item is string %}{{ item }}{% else %}{{ item | join(":") }}{% endif %}{% endfor %}
